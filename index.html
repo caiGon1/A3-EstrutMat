@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pixel Art 5x5 com Coordenadas Intuitivas</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .hidden { display: none; }
+
+    /* Container com 6 colunas e 6 linhas: 
+       1ª coluna e 1ª linha para coordenadas,
+       as outras 5x5 para as células */
+    .grid-container {
+      display: grid;
+      grid-template-columns: 20px repeat(5, 40px);
+      grid-template-rows: 20px repeat(5, 40px);
+      gap: 2px;
+      margin-top: 20px;
+    }
+
+    .label {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      user-select: none;
+    }
+
+    .cell {
+      width: 40px;
+      height: 40px;
+      background-color: #eee;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+
+    .painted {
+      background-color: black;
+    }
+
+    .color-reveal {
+      cursor: default;
+    }
+
+    #instructions {
+      margin-top: 10px;
+    }
+
+    button {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="tela-inicial">
+    <h1>Escolha um Desenho</h1>
+    <button onclick="escolherDesenho('coracao')">Coração</button>
+    <button onclick="escolherDesenho('check')">Check</button>
+    <button onclick="escolherDesenho('arvore')">Arvore de Natal</button>
+  </div>
+
+  <div id="tela-jogo" class="hidden">
+    <h2>Pinte nas coordenadas:</h2>
+    <div id="instructions"></div>
+    <div class="grid-container" id="grid-container"></div>
+    <p id="mensagem-final" style="font-weight: bold; color: green;"></p>
+  </div>
+
+  <script>
+    const desenhos = {
+        arvore:{
+            nome: "Arvore de Natal",
+            coords: [
+                [0, 2], [1,1],
+                [1,2], [1,3],
+                [2,1], [2,2], [2,3],
+                [3,0], [3,1], [3,2], [3,3], [3,4],
+                [4,2]
+            ],
+            cores:{
+                "0,2": "yellow", "1,1":"red", "1,2":"green", "1,3":"green",
+                "2,1":"green", "2,2":"green","2,3":"red", "3,0":"green", "3,1":"red",
+                "3,2":"green", "3,3":"green", "3,4":"red", "4,2":"orange"
+            }
+        },
+      coracao: {
+        nome: "Coração",
+        coords: [
+          [1, 1], [1, 3],
+          [2, 0], [2, 2], [2, 4],
+          [3, 1], [3, 3],
+          [4, 2]
+        ],
+        cores: {
+          "1,1": "red", "1,3": "red",
+          "2,0": "red", "2,2": "red", "2,4": "red",
+          "3,1": "red", "3,3": "red",
+          "4,2": "red"
+        }
+      },
+      check: {
+        nome: "Check",
+        coords: [
+          [0, 2],
+          [1, 2],
+          [2, 2],
+          [3, 1],
+          [4, 0]
+        ],
+        cores: {
+          "0,2": "green",
+          "1,2": "green",
+          "2,2": "green",
+          "3,1": "green",
+          "4,0": "green"
+        }
+      }
+    };
+
+    let desenhoAtual = null;
+    let celulas = [];
+
+    function escolherDesenho(nome) {
+      desenhoAtual = desenhos[nome];
+      document.getElementById("tela-inicial").classList.add("hidden");
+      document.getElementById("tela-jogo").classList.remove("hidden");
+      iniciarJogo();
+    }
+
+    function iniciarJogo() {
+      const container = document.getElementById("grid-container");
+      container.innerHTML = '';
+      celulas = [];
+      document.getElementById("mensagem-final").innerText = '';
+
+      // Primeira célula vazia (canto superior esquerdo)
+      container.appendChild(createLabel(''));
+
+      // Coordenadas das colunas no topo (0 a 4)
+      for (let j = 0; j < 5; j++) {
+        container.appendChild(createLabel(j));
+      }
+
+      // Linhas e células
+      for (let i = 0; i < 5; i++) {
+        // Coordenada da linha (esquerda)
+        container.appendChild(createLabel(i));
+
+        celulas[i] = [];
+        for (let j = 0; j < 5; j++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.dataset.row = i;
+          cell.dataset.col = j;
+          cell.addEventListener('click', () => pintarCelula(i, j));
+          container.appendChild(cell);
+          celulas[i][j] = cell;
+        }
+      }
+
+      const instrucoes = desenhoAtual.coords.map(c => `[${c[0]}, ${c[1]}]`).join(', ');
+      document.getElementById('instructions').innerText = instrucoes;
+    }
+
+    function createLabel(text) {
+      const lbl = document.createElement('div');
+      lbl.className = 'label';
+      lbl.innerText = text;
+      return lbl;
+    }
+
+    function pintarCelula(i, j) {
+      const cell = celulas[i][j];
+      if (cell.classList.contains('painted')) return;
+      cell.classList.add('painted');
+      verificarVitoria();
+    }
+
+    function verificarVitoria() {
+      const coordsCorretas = desenhoAtual.coords.map(c => `${c[0]},${c[1]}`);
+      const pintadas = [];
+
+      for (let i = 0; i < 5; i++) {
+        for (let j = 0; j < 5; j++) {
+          if (celulas[i][j].classList.contains('painted')) {
+            pintadas.push(`${i},${j}`);
+          }
+        }
+      }
+
+      if (pintadas.length !== coordsCorretas.length) return;
+
+      for (const p of pintadas) {
+        if (!coordsCorretas.includes(p)) return;
+      }
+
+      mostrarResultadoFinal();
+    }
+
+    function mostrarResultadoFinal() {
+      document.getElementById('mensagem-final').innerText = 'Parabéns! Você completou o desenho!';
+      for (let i = 0; i < 5; i++) {
+        for (let j = 0; j < 5; j++) {
+          const key = `${i},${j}`;
+          if (desenhoAtual.cores[key]) {
+            celulas[i][j].style.backgroundColor = desenhoAtual.cores[key];
+            celulas[i][j].classList.add('color-reveal');
+          } else {
+            celulas[i][j].style.backgroundColor = '#eee';
+          }
+          // Remove event listener ao final para evitar pintar depois de concluído
+          const oldCell = celulas[i][j];
+          const newCell = oldCell.cloneNode(true);
+          oldCell.parentNode.replaceChild(newCell, oldCell);
+        }
+      }
+    }
+  </script>
+</body>
+</html>
