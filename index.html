@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pixel Art 5x5 com Coordenadas Intuitivas</title>
+  <title>Pixel Art Cartesiano</title>
   <style>
     body {
       font-family: "Comic Sans MS", cursive, sans-serif;
@@ -13,13 +14,12 @@
       margin: 0;
       padding: 20px;
       background-color: #f0f8ff;
+      user-select: none;
     }
 
     .hidden {
-  display: none !important;
-}
-
-
+      display: none !important;
+    }
 
     #tela-jogo {
       display: flex;
@@ -52,7 +52,6 @@
       font-weight: bold;
       background-color: #ffebcd;
       border-radius: 8px;
-      user-select: none;
     }
 
     .cell {
@@ -92,6 +91,16 @@
       font-size: 18px;
     }
 
+    #dica-coordenadas {
+      font-size: 16px;
+      background-color: #e6f7ff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+      color: #004080;
+      font-style: italic;
+    }
+
     button {
       margin: 10px;
       padding: 10px 20px;
@@ -122,16 +131,28 @@
       from { opacity: 0; transform: scale(0.9); }
       to { opacity: 1; transform: scale(1); }
     }
+
     @keyframes unpaint {
-  0% { transform: scale(1); background-color: black; }
-  50% { transform: scale(1.2); background-color: #888; }
-  100% { transform: scale(1); background-color: #dcdcdc; }
-}
+      0% { transform: scale(1); background-color: black; }
+      50% { transform: scale(1.2); background-color: #888; }
+      100% { transform: scale(1); background-color: #dcdcdc; }
+    }
 
-.unpainted {
-  animation: unpaint 0.3s ease forwards;
-}
+    .unpainted {
+      animation: unpaint 0.3s ease forwards;
+    }
 
+    @keyframes shakeError {
+      0% { transform: translateX(0); background-color: #f8d7da; }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); background-color: #f1b0b7; }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); background-color: #dcdcdc; }
+    }
+
+    .error-shake {
+      animation: shakeError 0.4s ease;
+    }
 
     h1, h2 {
       color: #4b0082;
@@ -145,107 +166,146 @@
     <button onclick="escolherDesenho('coracao')">Coração</button>
     <button onclick="escolherDesenho('check')">Check</button>
     <button onclick="escolherDesenho('arvore')">Árvore de Natal</button>
+    <button onclick="escolherDesenho('kirby')">Kirby</button>
+    <button onclick="escolherDesenho('gato')">Gato</button>
   </div>
 
   <div id="tela-jogo" class="hidden">
-  <div id="conteudo-jogo">
-    <h2>Pinte nas coordenadas:</h2>
-    <div id="instructions"></div>
-    <div class="grid-container" id="grid-container"></div>
-    <p id="mensagem-final"></p>
+    <div id="conteudo-jogo">
+      <h2>Pinte nas coordenadas:</h2>
+      <p id="dica-coordenadas">Dica: As coordenadas estão no formato (X, Y) — coluna, linha — indo de 1 a 5 como em um plano cartesiano.</p>
+      <div id="instructions"></div>
+      <div class="grid-container" id="grid-container"></div>
+      <p id="mensagem-final"></p>
+    </div>
   </div>
-</div>
-
 
   <script>
     const desenhos = {
-      arvore: {
-        nome: "Árvore de Natal",
-        coords: [
-          [0, 2], [1,1],
-          [1,2], [1,3],
-          [2,1], [2,2], [2,3],
-          [3,0], [3,1], [3,2], [3,3], [3,4],
-          [4,2]
+      gato:{
+        nome:"Gato",
+        coords:[
+          [3,1],[3,3],
+          [2,1],[2,2],[2,3],
+          [1,1],[1,2],[1,3],
+          [0,2],[0,3],[0,4]
         ],
-        cores: {
-          "0,2": "yellow", "1,1": "red", "1,2": "green", "1,3": "green",
-          "2,1": "green", "2,2": "green", "2,3": "red", "3,0": "green", "3,1": "red",
-          "3,2": "green", "3,3": "green", "3,4": "red", "4,2": "orange"
+        cores:{
+          "3,1":"#0d0701", "3,3":"#0d0701",
+          "2,1":"#32fc54", "2,2":"#ababab", "2,3":"#32fc54",
+          "1,1":"#ababab","1,2":"pink","1,3":"#ababab",
+          "0,2":"#ababab", "0,3":"#ababab","0,4":"#0d0701"
         }
       },
-      coracao: {
-        nome: "Coração",
+      kirby:{
+        nome: "Kirby",
         coords: [
-          [1, 1], [1, 3],
-          [2, 0], [2, 2], [2, 4],
-          [3, 1], [3, 3],
-          [4, 2]
+          [4,1], [4,2], [4,3],
+          [3,0], [3,1], [3,2],[3,3],[3,4],
+          [2,0],[2,1],[2,2],[2,3],[2,4],
+          [1,1],[1,2],[1,3],
+          [0,0],[0,1],[0,3],[0,4]
         ],
-        cores: {
-          "1,1": "red", "1,3": "red",
-          "2,0": "red", "2,2": "red", "2,4": "red",
-          "3,1": "red", "3,3": "red",
-          "4,2": "red"
+        cores:{
+          "4,1":"pink","4,2":"pink","4,3":"pink",
+          "3,0":"pink","3,1":"blue","3,2":"pink","3,3":"blue","3,4":"pink",
+          "2,0":"pink","2,1":"black","2,2":"pink","2,3":"black","2,4":"pink",
+          "1,1":"pink","1,2":"pink","1,3":"pink",
+          "0,0":"red","0,1":"red","0,3":"red","0,4":"red"
         }
       },
-      check: {
-        nome: "Check",
-        coords: [
-          [0, 2],
-          [1, 2],
-          [2, 2],
-          [3, 1],
-          [4, 0]
-        ],
-        cores: {
-          "0,2": "green",
-          "1,2": "green",
-          "2,2": "green",
-          "3,1": "green",
-          "4,0": "green"
-        }
-      }
-    };
+  arvore: {
+    nome: "Árvore de Natal",
+    coords: [
+      [4, 2], [3, 1],
+      [3, 2], [3, 3],
+      [2, 1], [2, 2], [2, 3],
+      [1, 0], [1, 1], [1, 2], [1, 3], [1, 4],
+      [0, 2]
+    ],
+    cores: {
+      "4,2": "yellow", "3,1": "red", "3,2": "green", "3,3": "green",
+      "2,1": "green", "2,2": "green", "2,3": "red", "1,0": "green", "1,1": "red",
+      "1,2": "green", "1,3": "green", "1,4": "red", "0,2": "orange"
+    }
+  },
+  coracao: {
+    nome: "Coração",
+    coords: [
+      [3, 1], [3, 3],
+      [2, 0], [2, 2], [2, 4],
+      [1, 1], [1, 3],
+      [0, 2]
+    ],
+    cores: {
+      "3,1": "red", "3,3": "red",
+      "2,0": "red", "2,2": "red", "2,4": "red",
+      "1,1": "red", "1,3": "red",
+      "0,2": "red"
+    }
+  },
+  check: {
+    nome: "Check",
+    coords: [
+      [4, 2],
+      [3, 2],
+      [2, 2],
+      [1, 1],
+      [0, 0]
+    ],
+    cores: {
+      "4,2": "green",
+      "3,2": "green",
+      "2,2": "green",
+      "1,1": "green",
+      "0,0": "green"
+    }
+  }
+};
 
     let desenhoAtual = null;
     let celulas = [];
+    let passoAtual = 0;
+    let coordenadasPintadasCorretas = new Set();
 
     function escolherDesenho(nome) {
-  desenhoAtual = desenhos[nome];
-  document.getElementById("tela-inicial").classList.add("hidden");
-  document.getElementById("tela-jogo").classList.remove("hidden");
-  iniciarJogo();
-}
-
+      desenhoAtual = desenhos[nome];
+      document.getElementById("tela-inicial").classList.add("hidden");
+      document.getElementById("tela-jogo").classList.remove("hidden");
+      iniciarJogo();
+    }
 
     function iniciarJogo() {
       const container = document.getElementById("grid-container");
       container.innerHTML = '';
       celulas = [];
+      passoAtual = 0;
+      coordenadasPintadasCorretas = new Set();
       document.getElementById("mensagem-final").innerText = '';
 
       container.appendChild(createLabel(''));
-      for (let j = 0; j < 5; j++) {
-        container.appendChild(createLabel(j));
+      for (let x = 1; x <= 5; x++) {
+        container.appendChild(createLabel(x));
       }
 
-      for (let i = 0; i < 5; i++) {
-        container.appendChild(createLabel(i));
-        celulas[i] = [];
-        for (let j = 0; j < 5; j++) {
+      for (let y = 5; y >= 1; y--) {
+        container.appendChild(createLabel(y));
+        const row = [];
+        for (let x = 1; x <= 5; x++) {
+          const i = y - 1;
+          const j = x - 1;
           const cell = document.createElement('div');
           cell.className = 'cell';
           cell.dataset.row = i;
           cell.dataset.col = j;
           cell.addEventListener('click', () => pintarCelula(i, j));
           container.appendChild(cell);
-          celulas[i][j] = cell;
+          row.push(cell);
         }
+        celulas.push(row);
       }
 
-      const instrucoes = desenhoAtual.coords.map(c => `[${c[0]}, ${c[1]}]`).join(', ');
-      document.getElementById('instructions').innerText = instrucoes;
+      mostrarProximaInstrucao();
     }
 
     function createLabel(text) {
@@ -255,50 +315,50 @@
       return lbl;
     }
 
-   function pintarCelula(i, j) {
-  const cell = celulas[i][j];
+    function mostrarProximaInstrucao() {
+      const coord = desenhoAtual.coords[passoAtual];
+      const coordVisivel = `(${coord[1] + 1}, ${coord[0] + 1})`;
+      document.getElementById('instructions').innerText = `Pinte a coordenada: ${coordVisivel}`;
+    }
 
-  if (cell.classList.contains('painted')) {
-    // Despintar com animação
-    cell.classList.remove('painted');
-    cell.classList.add('unpainted');
-    
-    // Após a animação, remover classe e resetar cor
-    setTimeout(() => {
-      cell.classList.remove('unpainted');
-      cell.style.backgroundColor = '#dcdcdc';
-    }, 300);
-    
-  } else {
-    // Pintar normalmente
-    cell.classList.add('painted');
-    cell.style.backgroundColor = 'black';
-  }
+    function pintarCelula(i, j) {
+      const cell = celulas[4 - i][j];
 
-  verificarVitoria();
-}
+      const coordAtual = desenhoAtual.coords[passoAtual];
+      const chave = `${i},${j}`;
 
+      if (coordenadasPintadasCorretas.has(chave)) return;
 
+      if (cell.classList.contains('painted')) {
+        cell.classList.remove('painted');
+        cell.classList.add('unpainted');
+        setTimeout(() => {
+          cell.classList.remove('unpainted');
+          cell.style.backgroundColor = '#dcdcdc';
+        }, 300);
+        return;
+      }
 
+      if (i === coordAtual[0] && j === coordAtual[1]) {
+        cell.classList.add('painted');
+        cell.style.backgroundColor = 'black';
+        coordenadasPintadasCorretas.add(chave);
+        passoAtual++;
+
+        if (passoAtual < desenhoAtual.coords.length) {
+          mostrarProximaInstrucao();
+        } else {
+          verificarVitoria();
+        }
+      } else {
+        cell.classList.add('error-shake');
+        setTimeout(() => cell.classList.remove('error-shake'), 400);
+      }
+    }
 
     function verificarVitoria() {
-      const coordsCorretas = desenhoAtual.coords.map(c => `${c[0]},${c[1]}`);
-      const pintadas = [];
-
-      for (let i = 0; i < 5; i++) {
-        for (let j = 0; j < 5; j++) {
-          if (celulas[i][j].classList.contains('painted')) {
-            pintadas.push(`${i},${j}`);
-          }
-        }
-      }
-
-      if (pintadas.length !== coordsCorretas.length) return;
-
-      for (const p of pintadas) {
-        if (!coordsCorretas.includes(p)) return;
-      }
-
+      const total = desenhoAtual.coords.length;
+      if (coordenadasPintadasCorretas.size !== total) return;
       mostrarResultadoFinal();
     }
 
@@ -308,14 +368,13 @@
         for (let j = 0; j < 5; j++) {
           const key = `${i},${j}`;
           if (desenhoAtual.cores[key]) {
-            celulas[i][j].style.backgroundColor = desenhoAtual.cores[key];
-            celulas[i][j].classList.add('color-reveal');
+            celulas[4 - i][j].style.backgroundColor = desenhoAtual.cores[key];
+            celulas[4 - i][j].classList.add('color-reveal');
           } else {
-            celulas[i][j].style.backgroundColor = '#eee';
+            celulas[4 - i][j].style.backgroundColor = '#eee';
           }
 
-          // Remove event listener
-          const oldCell = celulas[i][j];
+          const oldCell = celulas[4 - i][j];
           const newCell = oldCell.cloneNode(true);
           oldCell.parentNode.replaceChild(newCell, oldCell);
         }
