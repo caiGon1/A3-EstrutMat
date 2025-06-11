@@ -16,6 +16,23 @@
       background-color: #f0f8ff;
       user-select: none;
     }
+    #botao-voltar {
+  margin-top: 20px;
+  padding: 10px 16px;
+  background-color: #ccccff;
+  color: #000066;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#botao-voltar:hover {
+  background-color: #9999ff;
+  transform: scale(1.05);
+}
+
 
     .hidden {
       display: none !important;
@@ -158,6 +175,7 @@
       color: #4b0082;
       text-shadow: 1px 1px #fff;
     }
+  
   </style>
 </head>
 <body>
@@ -175,8 +193,11 @@
       <h2>Pinte nas coordenadas:</h2>
       <p id="dica-coordenadas">Dica: As coordenadas estão no formato (X, Y) — coluna, linha — indo de 1 a 5 como em um plano cartesiano.</p>
       <div id="instructions"></div>
+ 
       <div class="grid-container" id="grid-container"></div>
+      
       <p id="mensagem-final"></p>
+       <button id="botao-voltar" onclick="voltarMenu()">Voltar ao Menu</button>
     </div>
   </div>
 
@@ -380,6 +401,12 @@
         }
       }
     }
+   function voltarMenu() {
+  document.getElementById("tela-jogo").classList.add("hidden");
+  document.getElementById("tela-inicial").classList.remove("hidden");
+}
+
+
   </script>
 </body>
 </html>
