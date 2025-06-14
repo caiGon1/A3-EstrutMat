@@ -14,7 +14,7 @@
       align-items: center;
       margin: 0;
       padding: 20px;
-      background-color: #f0f8ff;
+      background-color: #c2dffd;
       user-select: none;
     }
     #botao-voltar {
@@ -200,11 +200,26 @@
       color: #4b0082;
       text-shadow: 1px 1px #fff;
     }
+    .logo-img {
+  display: block;
+  margin: 0 auto 20px auto;
+  width: 120px;
+  filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
+  animation: floatLogo 2.5s ease-in-out infinite;
+}
+
+@keyframes floatLogo {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
   
   </style>
 </head>
 <body>
   <div id="tela-inicial">
+    <img src="xygo.png" alt="Logo" class="logo-img">
+
   <h1>Escolha um Desenho</h1>
   <div class="menu-grid">
     <button onclick="escolherDesenho('coracao')">Coração</button>
